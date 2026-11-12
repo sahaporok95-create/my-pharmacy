@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#087f5b">
+  <title>My Pharmacy</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header><div class="brand">💊 My Pharmacy</div><span id="connection">অনলাইন</span></header>
+  <main>
+    <section id="authView" class="panel">
+      <h1>My Pharmacy</h1>
+      <p>আপনার ফার্মেসির হিসাব, স্টক ও বিক্রয় ব্যবস্থাপনা করুন।</p>
+      <div class="tabs">
+        <button id="loginTab" class="active">লগইন</button>
+        <button id="signupTab">নতুন ফার্মেসি খুলুন</button>
+      </div>
+      <form id="authForm">
+        <label>ইমেইল<input id="email" type="email" required placeholder="name@example.com"></label>
+        <label>পাসওয়ার্ড<input id="password" type="password" minlength="6" required placeholder="কমপক্ষে ৬ অক্ষর"></label>
+        <div id="shopFields" hidden>
+          <label>ফার্মেসির নাম<input id="shopName" placeholder="যেমন: Saha Pharmacy"></label>
+          <label>ঠিকানা<input id="shopAddress" placeholder="দোকানের ঠিকানা"></label>
+        </div>
+        <button class="primary" type="submit" id="authSubmit">লগইন</button>
+      </form>
+      <p id="authMessage" class="message" aria-live="polite"></p>
+    </section>
+
+    <section id="appView" hidden>
+      <div class="welcome panel">
+        <div><h2 id="shopTitle">আমার ফার্মেসি</h2><p id="userRole"></p></div>
+        <button id="logoutBtn" class="secondary">লগআউট</button>
+      </div>
+      <div class="cards">
+        <div class="card"><small>ওষুধের আইটেম</small><strong id="productCount">০</strong></div>
+        <div class="card"><small>ব্যবহারকারী</small><strong id="memberRole">Owner</strong></div>
+      </div>
+      <section class="panel">
+        <h3>ওষুধের স্টক</h3>
+        <p class="hint">এই প্রাথমিক সংস্করণে মালিক ও অনুমতিপ্রাপ্ত ম্যানেজার ওষুধ যোগ করতে পারবেন।</p>
+        <form id="productForm" class="product-form">
+          <label>ওষুধের নাম<input id="medicineName" required placeholder="ওষুধের নাম"></label>
+          <div class="two">
+            <label>পরিমাণ<input id="medicineQty" type="number" min="0" required placeholder="০"></label>
+            <label>একক<input id="medicineUnit" value="পিস" required></label>
+          </div>
+          <button class="primary" type="submit">ওষুধ যোগ করুন</button>
+        </form>
+        <p id="productMessage" class="message" aria-live="polite"></p>
+        <div id="productList" class="product-list"><p class="hint">এখনো কোনো ওষুধ যোগ করা হয়নি।</p></div>
+      </section>
+      <section class="panel notice">
+        <h3>পরবর্তী উন্নয়ন</h3>
+        <p>বিল/POS, বিক্রয়ের সময় স্বয়ংক্রিয় স্টক কমানো, কর্মচারী আমন্ত্রণ, মেয়াদ ও ব্যাচ নিয়ন্ত্রণ, রিপোর্ট এবং অফলাইন সিঙ্ক পরের ধাপে যুক্ত হবে। এই প্রাথমিক সংস্করণটি এখনো বাস্তব দোকানে ব্যবহারের জন্য প্রস্তুত নয়।</p>
+      </section>
+    </section>
+  </main>
+  <footer>My Pharmacy · প্রাথমিক ডেভেলপমেন্ট সংস্করণ</footer>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
