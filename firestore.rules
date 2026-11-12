@@ -2,48 +2,46 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
-    function isOwner(shopId) {
-      return signedIn()
-        && get(/databases/$(database)/documents/shops/$(shopId)).data.ownerUid == request.auth.uid;
-    }
-    function isMember(shopId) {
+    function activeMember(shopId) {
       return signedIn()
         && exists(/databases/$(database)/documents/shops/$(shopId)/members/$(request.auth.uid))
         && get(/databases/$(database)/documents/shops/$(shopId)/members/$(request.auth.uid)).data.active == true;
+    }
+    function owner(shopId) {
+      return signedIn()
+        && get(/databases/$(database)/documents/shops/$(shopId)).data.ownerUid == request.auth.uid;
     }
     function role(shopId) {
       return get(/databases/$(database)/documents/shops/$(shopId)/members/$(request.auth.uid)).data.role;
     }
     match /shops/{shopId} {
-      allow create: if signedIn()
-        && request.resource.data.ownerUid == request.auth.uid
+      allow create: if signedIn() && request.resource.data.ownerUid == request.auth.uid
         && request.resource.data.keys().hasOnly(['name','address','ownerUid','createdAt','status']);
-      allow read: if isMember(shopId) || isOwner(shopId);
-      allow update, delete: if isOwner(shopId);
-
+      allow read: if activeMember(shopId);
+      allow update, delete: if owner(shopId);
       match /members/{uid} {
-        allow create: if signedIn() && uid == request.auth.uid
-          && isOwner(shopId)
+        allow create: if signedIn() && uid == request.auth.uid && owner(shopId)
           && request.resource.data.uid == request.auth.uid
-          && request.resource.data.role == 'owner'
-          && request.resource.data.active == true;
-        allow read: if isMember(shopId) && (isOwner(shopId) || role(shopId) in ['manager']);
-        allow update, delete: if isOwner(shopId);
+          && request.resource.data.role == 'owner' && request.resource.data.active == true;
+        allow read: if activeMember(shopId) && role(shopId) in ['owner','manager'];
+        allow update, delete: if owner(shopId);
       }
       match /products/{productId} {
-        allow read: if isMember(shopId);
-        allow create, update, delete: if isMember(shopId) && role(shopId) in ['owner','manager'];
+        allow read: if activeMember(shopId);
+        allow create, update, delete: if activeMember(shopId) && role(shopId) in ['owner','manager'];
       }
       match /sales/{saleId} {
-        allow read: if isMember(shopId) &&
-          (role(shopId) in ['owner','manager'] || resource.data.employeeUid == request.auth.uid);
-        // Temporary deny: sales/stock changes will be enabled through a trusted transaction backend.
+        allow read: if activeMember(shopId) && (role(shopId) in ['owner','manager'] || resource.data.employeeUid == request.auth.uid);
         allow create, update, delete: if false;
       }
     }
-    match /users/{uid}/memberships/{membershipId} {
+    match /users/{uid} {
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.role == 'owner'
+        && exists(/databases/$(database)/documents/shops/$(request.resource.data.shopId))
+        && get(/databases/$(database)/documents/shops/$(request.resource.data.shopId)).data.ownerUid == request.auth.uid;
       allow read: if signedIn() && request.auth.uid == uid;
-      allow write: if false;
+      allow update, delete: if false;
     }
   }
 }
